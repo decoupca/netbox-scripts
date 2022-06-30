@@ -10,14 +10,14 @@ import ipaddress
 from typing import Union
 
 
-class TagExternalDevices(Script):
+class TagPublicFacingDevices(Script):
     class Meta:
-        name = "Tag External Devices"
-        description = "Tag external devices based on IP addresses"
+        name = "Tag Public-Facing Devices"
+        description = "Tag public-facing devices based on interface IP addresses"
 
     tag = ObjectVar(
         model=Tag,
-        description="Apply this tag to any device that has a public IP address on any interface",
+        description="Apply this tag to any device that has at least one public IP address on any interface",
         required=True,
     )
 
@@ -35,7 +35,7 @@ class TagExternalDevices(Script):
                 status=IPAddressStatusChoices.STATUS_DEPRECATED
             ).all():
                 if self.is_public(addr):
-                    if data['tag'].slug not in device.tags.slugs():
+                    if data["tag"].slug not in device.tags.slugs():
                         device.tags.add(data["tag"])
                         device.save()
                         self.log_info(
@@ -43,7 +43,9 @@ class TagExternalDevices(Script):
                         )
                         return device
                     else:
-                        self.log_info(f'{device.name} has public IP {addr.address} but already tagged, doing nothing')
+                        self.log_info(
+                            f"{device.name} has public IP {addr.address} but already tagged, doing nothing"
+                        )
         return None
 
     def run(self, data, commit):
