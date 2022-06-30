@@ -35,12 +35,15 @@ class TagExternalDevices(Script):
                 status=IPAddressStatusChoices.STATUS_DEPRECATED
             ).all():
                 if self.is_public(addr):
-                    device.tags.add(data["tag"])
-                    device.save()
-                    self.log_info(
-                        f'{device.name} has public IP {addr.address}, tagged {data["tag"]}'
-                    )
-                    return device
+                    if data['tag'].slug not in device.tags.slugs():
+                        device.tags.add(data["tag"])
+                        device.save()
+                        self.log_info(
+                            f'{device.name} has public IP {addr.address}, tagged {data["tag"]}'
+                        )
+                        return device
+                    else:
+                        self.log_info(f'{device.name} has public IP {addr.address} but already tagged, doing nothing')
         return None
 
     def run(self, data, commit):
