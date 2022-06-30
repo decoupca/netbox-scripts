@@ -38,7 +38,7 @@ class TagPublicFacingDevices(Script):
                     if data["tag"].slug not in device.tags.slugs():
                         device.tags.add(data["tag"])
                         device.save()
-                        self.log_info(
+                        self.log_success(
                             f'{device.name} has public IP {addr.address}, tagged {data["tag"]}'
                         )
                         return device
